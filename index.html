@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web NFC Data Transfer</title>
+</head>
+<body>
+    <h1>Web NFC Data Transfer</h1>
+    <button id="readNfc">Read NFC</button>
+    <button id="writeNfc">Write NFC</button>
+    <textarea id="dataToWrite" placeholder="Enter data to write"></textarea>
+    <p id="nfcMessage"></p>
+
+    <script>
+        document.getElementById('readNfc').addEventListener('click', async () => {
+            try {
+                const ndef = new NDEFReader();
+                await ndef.scan();
+
+                ndef.onreading = event => {
+                    const decoder = new TextDecoder();
+                    for (const record of event.message.records) {
+                        if (record.recordType === "text") {
+                            document.getElementById('nfcMessage').textContent = decoder.decode(record.data);
+                        }
+                    }
+                };
+            } catch (error) {
+                console.error(error);
+            }
+        });
+
+        document.getElementById('writeNfc').addEventListener('click', async () => {
+            try {
+                const ndef = new NDEFReader();
+                await ndef.write(document.getElementById('dataToWrite').value);
+                document.getElementById('nfcMessage').textContent = "Data written to NFC tag.";
+            } catch (error) {
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
